@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>もぐらの土木しくみ帳</title>
+<meta name="description" content="土木の会社の総務さん向けに、工事の流れ・下請けのしくみ・相見積もりを学べるアプリ">
+<meta name="theme-color" content="#EDF2F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#192129" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="土木しくみ帳">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yusei+Magic&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: one narrow notebook column; a hazard-stripe band under the title marks the construction world; 5 tabs; diagrams are built from HTML boxes so they follow the theme */
+:root{
+  --bg:#EDF2F6;--paper:#FFFFFF;--ink:#2F3740;--sub:#606C77;--line:#D3DEE7;
+  --sky:#3A7DC2;--sky-soft:#E0ECF8;
+  --helmet:#F2B531;--helmet-soft:#FFF1CF;
+  --cone:#D9682A;--cone-soft:#FFE6D6;
+  --leaf:#3F9A5C;--leaf-soft:#DDF1E3;
+  --bad:#C94A50;--bad-soft:#FBE3E4;
+  --pink:#F6A9BC;--mole:#9B7A63;--bunny:#FFFFFF;--bunny-line:#2F3740;--key:#F3F6F9;--stripe:#2F3740;
+  --display:"Yusei Magic","Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;
+  --body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#192129;--paper:#232E38;--ink:#EAF0F5;--sub:#A6B3BE;--line:#36444F;
+  --sky:#7FB4E8;--sky-soft:#22384D;--helmet:#F5C552;--helmet-soft:#433819;--cone:#FF9A55;--cone-soft:#47301F;
+  --leaf:#6CC487;--leaf-soft:#243F2E;--bad:#F07C80;--bad-soft:#4A2729;--pink:#F2A0B4;--mole:#B8977E;
+  --bunny:#F4F1EC;--bunny-line:#20262C;--key:#2C3944;--stripe:#14191E;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#192129;--paper:#232E38;--ink:#EAF0F5;--sub:#A6B3BE;--line:#36444F;
+  --sky:#7FB4E8;--sky-soft:#22384D;--helmet:#F5C552;--helmet-soft:#433819;--cone:#FF9A55;--cone-soft:#47301F;
+  --leaf:#6CC487;--leaf-soft:#243F2E;--bad:#F07C80;--bad-soft:#4A2729;--pink:#F2A0B4;--mole:#B8977E;
+  --bunny:#F4F1EC;--bunny-line:#20262C;--key:#2C3944;--stripe:#14191E;color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;line-height:1.4;margin:0}
+p{margin:0}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+b,strong{font-weight:700}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--sub);font-size:.9rem}
+.hl{background:linear-gradient(transparent 58%,var(--helmet-soft) 58%);font-weight:700}
+a{color:var(--sky)}
+
+.hero{display:flex;align-items:center;gap:14px;padding-block:22px 4px}
+.hero .mog{width:88px;flex:none}
+.hero h1{font-size:1.65rem}
+.hero p{color:var(--sub);font-size:.92rem;margin-top:2px}
+.hazard{height:10px;border-radius:5px;background:repeating-linear-gradient(-45deg,var(--helmet) 0 12px,var(--stripe) 12px 24px);margin-block:8px 2px}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding-block:8px}
+.tabs button{font:inherit;font-weight:700;font-size:.92rem;border:2px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:16px;padding:5px 2px;cursor:pointer;line-height:1.25;display:flex;flex-direction:column;align-items:center}
+.tabs button small{font-size:.66rem;font-weight:700;color:var(--sub)}
+.tabs button[aria-selected="true"]{background:var(--sky);border-color:var(--sky);color:var(--paper)}
+.tabs button[aria-selected="true"] small{color:var(--paper)}
+button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--helmet);outline-offset:2px}
+
+section.pane{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.card{background:var(--paper);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;border:2px solid var(--line);min-width:0}
+.eyebrow{font-size:.78rem;font-weight:900;letter-spacing:.08em;color:var(--cone)}
+.card h2{font-size:1.3rem}
+.card h3{font-size:1.05rem;color:var(--sky)}
+.say{display:flex;gap:10px;align-items:flex-start}
+.say .mog,.say .bun{width:54px;flex:none}
+.bubble{background:var(--sky-soft);border-radius:4px 18px 18px 18px;padding:10px 14px;flex:1;min-width:0}
+.bubble.q{background:var(--helmet-soft)}
+.callout{border-left:5px solid var(--helmet);background:var(--bg);border-radius:0 14px 14px 0;padding:10px 14px;font-size:.93rem}
+.callout.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+.callout.ok{border-left-color:var(--leaf)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.88rem;font-weight:700;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer;line-height:1.5}
+.chip[aria-pressed="true"]{background:var(--sky);border-color:var(--sky);color:var(--paper)}
+.btn{font:inherit;font-weight:700;font-size:1rem;border:none;border-radius:14px;padding:9px 18px;cursor:pointer;background:var(--sky);color:var(--paper);line-height:1.5}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn.small{font-size:.85rem;padding:5px 12px}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:300px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;line-height:1.5;vertical-align:top}
+th{font-size:.82rem;color:var(--sub);font-weight:700}
+.key{font-variant-numeric:tabular-nums;display:inline-block;min-width:30px;text-align:center;padding:0 8px;border-radius:8px;background:var(--key);border:1px solid var(--line);border-bottom-width:3px;font-weight:700;font-size:.92rem}
+
+/* flow */
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.phases button{font:inherit;text-align:left;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:8px 12px;cursor:pointer;display:flex;gap:8px;align-items:center;line-height:1.4}
+.phases button:hover{border-color:var(--sky)}
+.pn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--sky);color:var(--paper);font-weight:900;font-size:.85rem}
+.phases small{display:block;color:var(--sub);font-size:.75rem}
+.phase{display:flex;align-items:center;gap:10px;font-size:1.2rem;padding-top:6px;scroll-margin-top:90px}
+.phase .pn{width:32px;height:32px;font-size:1rem}
+.steps{display:flex;flex-direction:column;gap:10px}
+details.step{background:var(--paper);border:2px solid var(--line);border-radius:18px}
+details.step[open]{border-color:var(--sky)}
+details.step summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+details.step summary::-webkit-details-marker{display:none}
+.sno{flex:none;width:34px;height:34px;border-radius:10px;background:var(--helmet);color:var(--stripe);display:grid;place-items:center;font-weight:900;font-variant-numeric:tabular-nums}
+details.step.read .sno{background:var(--leaf);color:var(--paper)}
+.stt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.5}
+.stt b{font-size:1.02rem}
+.stt small{color:var(--sub);font-size:.85rem}
+details.step summary::after{content:"＋";color:var(--sky);font-weight:900;margin-top:4px}
+details.step[open] summary::after{content:"−"}
+.sbody{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.srow{display:flex;flex-direction:column;gap:4px;border-radius:14px;padding:10px 12px}
+.srow.genba{background:var(--sky-soft)}
+.srow.soumu{background:var(--helmet-soft)}
+.lab{font-size:.75rem;font-weight:900;letter-spacing:.06em}
+.srow.genba .lab{color:var(--sky)}
+.srow.soumu .lab{color:var(--cone)}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.word{font-size:.78rem;font-weight:700;background:var(--bg);border-radius:999px;padding:1px 10px;color:var(--sub);border:none;cursor:pointer;font-family:inherit}
+.readchk{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.92rem;cursor:pointer;align-self:flex-start}
+.readchk input{width:20px;height:20px;accent-color:var(--leaf)}
+.progress{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pbar{flex:1;min-width:140px;height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--leaf);width:0;transition:width .3s}
+
+/* tree */
+.tree{display:flex;flex-direction:column;gap:0}
+.lv{border:2px dashed transparent;border-radius:18px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:6px;background:transparent;font:inherit;color:inherit;text-align:center;width:100%}
+.lv:hover,.lv.on{border-color:var(--sky);background:var(--sky-soft)}
+.lvname{font-family:var(--display);font-size:1.05rem;display:flex;justify-content:center;gap:6px;align-items:center;flex-wrap:wrap}
+.lvname small{font-family:var(--body);font-size:.75rem;color:var(--sub)}
+.nodes{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.node{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:6px 10px;font-size:.88rem;font-weight:700;line-height:1.4;flex:1 1 120px;max-width:220px;min-width:0}
+.node small{display:block;font-weight:500;color:var(--sub);font-size:.72rem}
+.lv0 .node{border-color:var(--sky)}
+.lv1 .node{border-color:var(--cone);background:var(--cone-soft)}
+.lv2 .node{border-color:var(--leaf)}
+.lv3 .node{border-color:var(--helmet)}
+.me{display:inline-block;background:var(--cone);color:var(--paper);font-size:.72rem;font-weight:900;border-radius:999px;padding:0 8px}
+.arrow{display:flex;justify-content:center;gap:18px;font-size:.78rem;font-weight:700;padding:2px 0;flex-wrap:wrap}
+.arrow .dn{color:var(--cone)}
+.arrow .up{color:var(--sky)}
+.tdetail{display:flex;gap:10px;align-items:flex-start}
+.tdetail .mog{width:48px;flex:none}
+
+.analogy{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center}
+.analogy .a1{font-weight:700;font-size:.85rem;background:var(--bg);border-radius:10px;padding:4px 10px;text-align:center}
+.analogy .a2{font-size:.92rem}
+
+/* chain */
+.chain{display:flex;flex-direction:column;align-items:center;gap:0}
+.cbox{width:100%;max-width:320px;border-radius:14px;padding:8px 12px;text-align:center;font-weight:700;border:2px solid var(--line);background:var(--paper);line-height:1.4}
+.cbox small{display:block;font-weight:500;color:var(--sub);font-size:.75rem}
+.cbox.c0{border-color:var(--sky)}.cbox.c1{border-color:var(--cone);background:var(--cone-soft)}.cbox.c2{border-color:var(--leaf)}.cbox.c3{border-color:var(--helmet)}
+.clink{height:44px;width:4px;background:var(--leaf);position:relative}
+.clink span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;border:2px solid var(--leaf);font-size:.78rem;font-weight:700;color:var(--leaf);background:var(--leaf-soft);border-radius:999px;padding:0 10px}
+.nolink{display:flex;flex-direction:column;gap:6px}
+.nolink div{background:var(--bad-soft);border-radius:12px;padding:6px 12px;font-size:.9rem}
+.nolink b{color:var(--bad)}
+
+/* flow two columns */
+.flow2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.flow2>div{min-width:0;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.flow2 .money{background:var(--cone-soft)}
+.flow2 .docs{background:var(--sky-soft)}
+.flow2 h3{font-size:1rem}
+.fstep{background:var(--paper);border-radius:10px;padding:6px 10px;font-size:.85rem;line-height:1.5}
+.fstep b{display:block}
+.farrow{text-align:center;font-weight:900;line-height:1}
+.money .farrow{color:var(--cone)}
+.docs .farrow{color:var(--sky)}
+
+/* stacked bar */
+.stack{display:flex;flex-direction:column;gap:8px}
+.sbar{position:relative;height:34px;border-radius:10px;background:var(--bg);overflow:hidden;display:flex}
+.sbar span{height:100%;min-width:0;transition:width .35s ease;border-right:2px solid var(--paper)}
+.sbar span.ext{background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(255,255,255,.35) 6px 10px)}
+.sbar .over{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,var(--bad) 0 6px,transparent 6px 12px);opacity:.85}
+.sbar .mark{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--bad)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 14px}
+.lg{display:flex;align-items:center;gap:8px;font-size:.88rem;min-width:0}
+.lg i{flex:none;width:14px;height:14px;border-radius:4px}
+.lg .n{flex:1;min-width:0}
+.lg .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ladder{display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.ladder div{background:var(--bg);border-radius:10px;padding:5px 12px}
+.ladder b{color:var(--sky)}
+
+.flowsteps{display:flex;flex-direction:column;gap:8px}
+.flowsteps>div{display:flex;gap:10px;align-items:flex-start}
+.flowsteps .no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--sky);color:var(--paper);display:grid;place-items:center;font-weight:900;font-size:.85rem;margin-top:2px}
+.flowsteps .tx{flex:1;min-width:0}
+
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.reason{background:var(--bg);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.reason h3{font-size:1rem;color:var(--ink)}
+.reason .cut{align-self:flex-start;font-size:.75rem;font-weight:900;border-radius:999px;padding:0 10px;background:var(--leaf-soft);color:var(--leaf)}
+.reason p{font-size:.9rem}
+
+/* simulator */
+.toggles{display:flex;flex-direction:column;gap:6px}
+.tg{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:14px;padding:8px 12px;cursor:pointer;border:2px solid transparent}
+.tg input{width:22px;height:22px;margin-top:3px;flex:none;accent-color:var(--leaf)}
+.tg.danger input{accent-color:var(--bad)}
+.tg span{flex:1;min-width:0;font-size:.92rem;line-height:1.55}
+.tg small{display:block;color:var(--sub);font-size:.8rem}
+.tg:has(input:checked){border-color:var(--leaf)}
+.tg.danger:has(input:checked){border-color:var(--bad)}
+.simout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.so{background:var(--bg);border-radius:14px;padding:8px 10px;text-align:center;min-width:0}
+.so .v{font-family:var(--display);font-size:1.35rem;line-height:1.3;font-variant-numeric:tabular-nums}
+.so .l{font-size:.75rem;color:var(--sub);line-height:1.4}
+.status{border-radius:16px;padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:center;line-height:1.6}
+.status .mog{width:50px;flex:none}
+.status.good{background:var(--leaf-soft)}
+.status.mid{background:var(--helmet-soft)}
+.status.bad{background:var(--bad-soft)}
+
+.rules{display:flex;flex-direction:column;gap:10px}
+.rule{border-radius:16px;padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:4px}
+.rule h3{font-size:1rem;color:var(--ink);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.law{font-family:var(--body);font-size:.72rem;font-weight:700;color:var(--sub);background:var(--paper);border-radius:999px;padding:0 8px}
+.rule p{font-size:.92rem}
+.ng{color:var(--bad);font-weight:900}
+
+/* glossary */
+.search{font:inherit;font-size:1.05rem;width:100%;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.gloss{display:flex;flex-direction:column;gap:8px}
+.term{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;scroll-margin-top:90px}
+.term.flash{border-color:var(--helmet)}
+.term .tt{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.term .tt b{font-size:1.02rem}
+.term .rd{font-size:.8rem;color:var(--sub)}
+.term .tc{margin-left:auto;font-size:.7rem;font-weight:700;color:var(--sub);background:var(--bg);border-radius:999px;padding:0 8px}
+.term p{font-size:.92rem}
+.empty{text-align:center;color:var(--sub);padding:16px}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.qno{font-family:var(--display);color:var(--cone)}
+.qtext{font-size:1.1rem;font-weight:700;line-height:1.7}
+.qchoices{display:flex;flex-direction:column;gap:8px}
+.qchoices button{font:inherit;text-align:left;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:14px;padding:10px 14px;cursor:pointer;line-height:1.5}
+.qchoices button:hover:not(:disabled){border-color:var(--sky)}
+.qchoices button.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.qchoices button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.qchoices button:disabled{cursor:default}
+.qres{border-radius:16px;padding:12px 14px}
+.qres.ok{background:var(--leaf-soft)}
+.qres.ng{background:var(--cone-soft)}
+.qres .h{font-family:var(--display);font-size:1.2rem}
+.qend{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.qend .mog{width:90px}
+.qend .big{font-family:var(--display);font-size:2.2rem;color:var(--sky)}
+
+.foot{margin-top:28px;text-align:center;font-size:.85rem;color:var(--sub);display:flex;flex-direction:column;gap:4px}
+
+@media (max-width:480px){
+  .hero h1{font-size:1.4rem}
+  .tabs button{font-size:.85rem}
+  .flow2{grid-template-columns:1fr}
+  .simout{grid-template-columns:1fr 1fr}
+  .simout .so:last-child{grid-column:span 2}
+}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+.hop{animation:hop .5s ease 2}
+@media (prefers-reduced-motion:reduce){.hop{animation:none}.sbar span,.pbar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="mog" data-mood="happy"></div>
+    <div>
+      <h1>もぐらの土木しくみ帳</h1>
+      <p>土木の会社の総務さんのための、工事の流れ・下請けのしくみ・お金の話。</p>
+    </div>
+  </header>
+  <div class="hazard" aria-hidden="true"></div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-nagare" aria-selected="true" data-pane="nagare">流れ<small>工事の順番</small></button>
+    <button role="tab" id="tab-shitauke" aria-selected="false" data-pane="shitauke">下請け<small>図でわかる</small></button>
+    <button role="tab" id="tab-okane" aria-selected="false" data-pane="okane">お金<small>見積と交渉</small></button>
+    <button role="tab" id="tab-yougo" aria-selected="false" data-pane="yougo">用語<small>困ったら</small></button>
+    <button role="tab" id="tab-quiz" aria-selected="false" data-pane="quiz">クイズ<small>たしかめ</small></button>
+  </nav>
+
+  <!-- ================= 流れ ================= -->
+  <section class="pane" id="pane-nagare">
+    <div class="card">
+      <h2>公共工事は、こんな順番で進む</h2>
+      <div class="say"><div class="bun" data-mood="normal"></div>
+        <div class="bubble q">土木の会社に入ったけど、工事ってどうやって始まって、どう終わるの？</div></div>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble">市・県・国の工事は、だいたい<b>16のステップ</b>で進むよ。<br>それぞれに「<b>現場では</b>」と「<b>総務では</b>」を書いておいたから、自分の出番を探してみてね。</div></div>
+      <div class="phases" id="phaseNav"></div>
+      <div class="progress"><span class="muted">読んだステップ <b class="num" id="readCount">0</b> / 16</span><div class="pbar"><i id="readBar"></i></div></div>
+      <div class="chips"><button class="btn ghost small" type="button" id="openAll">ぜんぶひらく</button><button class="btn ghost small" type="button" id="closeAll">ぜんぶとじる</button></div>
+    </div>
+    <div class="steps" id="flowList"></div>
+    <div class="callout">会社によって、総務・工務・経理のどこが担当するかはちがいます。わからない書類があったら「これはどの部署の担当ですか？」と聞けばOK。</div>
+  </section>
+
+  <!-- ================= 下請け ================= -->
+  <section class="pane" id="pane-shitauke" hidden>
+    <div class="card">
+      <span class="eyebrow">コラム 1</span>
+      <h2>元請・一次・二次ってなに？</h2>
+      <div class="say"><div class="bun" data-mood="think"></div>
+        <div class="bubble q">「うちは一次（いちじ）で受けてる」って言われたけど、どういうこと？</div></div>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble">工事のお願いが、<b>上から下へリレーされていく</b>イメージだよ。<br>図の段をタップすると説明が出るよ。</div></div>
+
+      <div class="tree" id="tree">
+        <button type="button" class="lv lv0" data-lv="0">
+          <span class="lvname">発注者<small>はっちゅうしゃ</small></span>
+          <span class="nodes"><span class="node">市・県・国<small>工事をお願いして、お金を出す</small></span></span>
+        </button>
+        <div class="arrow"><span class="dn">↓ 仕事をたのむ・お金を払う</span><span class="up">↑ 報告・書類</span></div>
+        <button type="button" class="lv lv1" data-lv="1">
+          <span class="lvname">元請<small>もとうけ</small><span class="me">あなたの会社</span></span>
+          <span class="nodes"><span class="node">役所から直接受ける会社<small>工事ぜんぶの責任者</small></span></span>
+        </button>
+        <div class="arrow"><span class="dn">↓ 工事の一部をたのむ</span><span class="up">↑ 報告・書類</span></div>
+        <button type="button" class="lv lv2" data-lv="2">
+          <span class="lvname">一次下請<small>いちじしたうけ</small></span>
+          <span class="nodes">
+            <span class="node">舗装の会社<small>アスファルト</small></span>
+            <span class="node">型枠・鉄筋の会社<small>コンクリートの形</small></span>
+            <span class="node">土工の会社<small>掘る・運ぶ</small></span>
+            <span class="node">警備会社<small>交通誘導</small></span>
+          </span>
+        </button>
+        <div class="arrow"><span class="dn">↓ さらに一部をたのむ</span><span class="up">↑ 報告・書類</span></div>
+        <button type="button" class="lv lv3" data-lv="3">
+          <span class="lvname">二次下請<small>にじしたうけ</small></span>
+          <span class="nodes">
+            <span class="node">ダンプの運送会社<small>土工の会社から</small></span>
+            <span class="node">応援の職人さん<small>型枠の会社から</small></span>
+          </span>
+        </button>
+      </div>
+      <div class="tdetail"><div class="mog" id="tdMog" data-mood="normal"></div><div class="bubble" id="tdText">段をタップしてみてね。</div></div>
+    </div>
+
+    <div class="card">
+      <h3>ひっこしで考えると、かんたん</h3>
+      <div class="analogy">
+        <span class="a1">発注者</span><span class="a2">ひっこしをお願いする<b>あなた（お客さん）</b></span>
+        <span class="a1">元請</span><span class="a2">ひっこし全体を引き受けた<b>ひっこし会社</b></span>
+        <span class="a1">一次下請</span><span class="a2">ひっこし会社が「ピアノだけは専門の運送屋さんに」とお願いした<b>ピアノ運送屋さん</b></span>
+        <span class="a1">二次下請</span><span class="a2">ピアノ運送屋さんが「2階の窓から出すのでクレーン車を」とお願いした<b>クレーン会社</b></span>
+      </div>
+      <p>お客さん（発注者）が話すのは、ひっこし会社（元請）だけ。ピアノがこわれても、まずひっこし会社が責任を持つよね。工事も同じしくみなんだ。</p>
+    </div>
+
+    <div class="card">
+      <h3>言葉の整理：「一次受け」と言われたら</h3>
+      <div class="tablebox"><table>
+        <tr><th>聞く言い方</th><th>正式な言い方</th><th>どんな会社？</th></tr>
+        <tr><td>「うちは一次で受けてる」<br>「元請（もとうけ）」</td><td><b>元請</b></td><td>市・県・国から<b>直接</b>受ける会社</td></tr>
+        <tr><td>「一次さん」「協力会社さん」</td><td><b>一次下請</b></td><td>元請から受ける会社</td></tr>
+        <tr><td>「二次さん」「孫請け」</td><td><b>二次下請</b></td><td>一次下請から受ける会社</td></tr>
+      </table></div>
+      <div class="callout">市・県・国から直接受けている会社は、書類や法律の言葉では<b>「元請（もとうけ）」</b>です。社内で「一次で受けてる」と言うときは、たいてい「役所から直接受けている」という意味。いっぽう書類の「一次下請」は元請から受ける会社のことなので、書類を書くときは「元請」と「一次下請」を使い分けよう。</div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">コラム 2</span>
+      <h2>契約は「となり同士」だけ</h2>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble">契約書を結ぶのは、<b>すぐ上とすぐ下の会社だけ</b>。市と下請けさんは、直接の契約をしていないんだ。</div></div>
+      <div class="chain">
+        <div class="cbox c0">市・県・国<small>発注者</small></div>
+        <div class="clink"><span>契約書</span></div>
+        <div class="cbox c1">元請<small>あなたの会社</small></div>
+        <div class="clink"><span>注文書・注文請書（下請契約）</span></div>
+        <div class="cbox c2">一次下請</div>
+        <div class="clink"><span>注文書・注文請書</span></div>
+        <div class="cbox c3">二次下請</div>
+      </div>
+      <div class="nolink">
+        <div><b>✕ 契約なし</b>　市・県・国 と 一次下請</div>
+        <div><b>✕ 契約なし</b>　元請 と 二次下請</div>
+      </div>
+      <h3>だから、どうなるの？</h3>
+      <ul>
+        <li>市から見ると、相手は<b>元請だけ</b>。下請けさんの工事でも、品質・安全・書類の責任は<b>元請がまとめて持つ</b>。</li>
+        <li>下請けさんへの注文・お願い・支払いは、<b>すぐ上の会社</b>から。元請が二次下請さんに直接お金を払うことはふつうない。</li>
+        <li>元請は、下請けさんがどこまでつながっているかを<b>施工体制台帳</b>で全部つかんでおく。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">コラム 3</span>
+      <h2>お金は上から下へ、書類は下から上へ</h2>
+      <div class="flow2">
+        <div class="money">
+          <h3 style="color:var(--cone)">お金の流れ ↓</h3>
+          <div class="fstep"><b>市・県・国</b>工事代金 1億円</div>
+          <div class="farrow">↓</div>
+          <div class="fstep"><b>元請（あなたの会社）</b>1億円を受け取り、下請けさんに分ける</div>
+          <div class="farrow">↓</div>
+          <div class="fstep"><b>一次下請</b>舗装 2,300万円／型枠 1,850万円／土工 980万円</div>
+          <div class="farrow">↓</div>
+          <div class="fstep"><b>二次下請</b>土工の会社 → ダンプの会社へ 400万円</div>
+        </div>
+        <div class="docs">
+          <h3>書類の流れ ↑</h3>
+          <div class="fstep"><b>市・県・国へ</b>施工計画書、施工体制台帳の写し、打合せ簿、完成図書、請求書</div>
+          <div class="farrow">↑</div>
+          <div class="fstep"><b>元請がまとめる</b>下請けさんの書類を集めて、チェックして、役所へ</div>
+          <div class="farrow">↑</div>
+          <div class="fstep"><b>一次下請から</b>見積書、注文請書、作業員名簿、再下請負通知書、請求書</div>
+          <div class="farrow">↑</div>
+          <div class="fstep"><b>二次下請から</b>同じような書類を、一次下請へ</div>
+        </div>
+      </div>
+      <h3>元請が受け取った1億円の使いみち（例）</h3>
+      <div class="stack" id="stackUse"></div>
+      <p class="muted">数字は説明用の例です。工事の種類や会社によって割合は変わります。</p>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">コラム 4</span>
+      <h2>なぜ、全部自分でやらないの？</h2>
+      <div class="reasons">
+        <div class="reason"><h3>専門の技術がいる</h3><p>舗装、型枠、鉄筋、交通誘導…。それぞれに専門の機械・資格・職人さんがいる。全部を1社でそろえるのはむずかしい。</p></div>
+        <div class="reason"><h3>全部持つと高くつく</h3><p>人と機械を全部自社で持つと、仕事がない日も給料や機械のローンがかかる。必要なときにお願いした方がむだが少ない。</p></div>
+        <div class="reason"><h3>仕事の量に波がある</h3><p>工事は春から秋に集中しやすく、秋田は冬に雪で工事が減る。忙しい時期だけ人手を借りられるしくみが便利。</p></div>
+        <div class="reason"><h3>元請の仕事は「管理」</h3><p>元請のいちばん大事な仕事は、工事全体をまとめること。自社で手を動かす工事もあるけれど、中心は管理。</p></div>
+      </div>
+      <h3>元請が管理する4つのこと</h3>
+      <div class="tablebox"><table>
+        <tr><th>管理</th><th>なにをする？</th></tr>
+        <tr><td><b>工程</b></td><td>工期に間に合うように、作業の順番と日にちを決める</td></tr>
+        <tr><td><b>品質</b></td><td>図面どおりの寸法・強さでできているか確かめる</td></tr>
+        <tr><td><b>安全</b></td><td>けが・事故がないように、ルールと設備を整える</td></tr>
+        <tr><td><b>原価</b></td><td>予算の中におさまっているか、お金を見張る</td></tr>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">コラム 5</span>
+      <h2>元請が守る、大事なルール</h2>
+      <div class="rules">
+        <div class="rule"><h3><span class="ng">丸投げは禁止</span><span class="law">一括下請負の禁止</span></h3><p>受けた工事を、そっくりそのまま下請けに出すこと（丸投げ）はダメ。<b>公共工事では、発注者がOKと言っても全面禁止</b>。</p></div>
+        <div class="rule"><h3>契約は必ず書面で<span class="law">建設業法 第19条</span></h3><p>下請けさんとも、金額・工事の内容・工期・支払いの日などを書いた書面（または電子契約）で契約する。電話や口約束だけはNG。</p></div>
+        <div class="rule"><h3>施工体制台帳をつくる</h3><p>公共工事では、下請けに出したら<b>金額にかかわらず</b>施工体制台帳をつくって、写しを発注者に出す。会社のつながりを図にした「施工体系図」は、現場の見えるところに貼る。</p></div>
+        <div class="rule"><h3>下請けさんへの支払いは早く<span class="law">建設業法 第24条の3</span></h3><p>元請は、発注者からお金を受け取ったら<b>1か月以内</b>に下請けさんに払う。</p></div>
+        <div class="rule"><h3>下請けさんの確認</h3><p>建設業の許可を持っているか、社会保険に入っているかを確認する。</p></div>
+      </div>
+      <h3>金額で変わるルール（2025年2月から）</h3>
+      <div class="tablebox"><table>
+        <tr><th>こんなとき</th><th>必要なこと</th></tr>
+        <tr><td>元請が下請けに出す<b>合計</b>が<b>5,000万円以上</b><br><span class="muted">（建築一式工事は8,000万円以上）</span></td><td>特定建設業の許可と、監理技術者をおく</td></tr>
+        <tr><td>請負金額が<b>4,500万円以上</b><br><span class="muted">（建築一式工事は9,000万円以上）</span></td><td>技術者がその現場に専任（原則かけもち不可）</td></tr>
+      </table></div>
+      <p class="muted">2025年2月に、それまでの4,500万円→5,000万円、4,000万円→4,500万円に引き上げられました。</p>
+    </div>
+  </section>
+
+  <!-- ================= お金 ================= -->
+  <section class="pane" id="pane-okane" hidden>
+    <div class="card">
+      <span class="eyebrow">お金 1</span>
+      <h2>工事の値段は、なにでできている？</h2>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble">役所は、工事の値段を<b>決まった積み上げ方</b>で計算しているよ。中身は大きく5つ。</div></div>
+      <div class="stack" id="stackSekisan"></div>
+      <div class="tablebox"><table>
+        <tr><th>名前</th><th>中身</th></tr>
+        <tr><td><b>直接工事費</b></td><td>材料・作業員さん・機械など、形になるものに直接かかるお金</td></tr>
+        <tr><td><b>共通仮設費</b></td><td>現場事務所、仮設の道路、安全のための設備、測量など、工事全体で共通に使うもの</td></tr>
+        <tr><td><b>現場管理費</b></td><td>現場の社員の給料、保険、通信費など、現場を管理するお金</td></tr>
+        <tr><td><b>一般管理費等</b></td><td>本社の経費と会社のもうけ。<span class="hl">総務の人のお給料もここから</span></td></tr>
+        <tr><td><b>消費税</b></td><td>工事価格の10%</td></tr>
+      </table></div>
+      <h3>積み上げると、こうなる</h3>
+      <div class="ladder">
+        <div>直接工事費 ＋ 共通仮設費 ＝ <b>純工事費</b></div>
+        <div>純工事費 ＋ 現場管理費 ＝ <b>工事原価</b></div>
+        <div>工事原価 ＋ 一般管理費等 ＝ <b>工事価格</b>（入札はこの金額・税抜き）</div>
+        <div>工事価格 ＋ 消費税 ＝ <b>請負工事費</b>（契約はこの金額・税込み）</div>
+      </div>
+      <p class="muted">割合は説明用の例です。</p>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">お金 2</span>
+      <h2>相見積もり（あいみつもり）ってなに？</h2>
+      <div class="say"><div class="bun" data-mood="normal"></div>
+        <div class="bubble q">課長が「あいみつ取って」って言ってた。なにそれ？</div></div>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble"><b>同じ条件で、2社以上から見積をもらって比べること</b>だよ。略して「あいみつ」。<br>ふさわしい値段を知る、予算におさめる、会社を選ぶ、のために取るんだ。</div></div>
+      <h3>相見積もりの流れ</h3>
+      <div class="flowsteps">
+        <div><span class="no">1</span><div class="tx"><b>条件をそろえる</b><br>図面・数量・工期・「どこまで入っているか」を決めて、どの会社にも同じ資料を渡す。</div></div>
+        <div><span class="no">2</span><div class="tx"><b>見積をお願いする</b><br>見積をつくるための日数（見積期間）を、法律で決まった分だけあげる（下の表）。</div></div>
+        <div><span class="no">3</span><div class="tx"><b>見積書を受け取る</b><br>合計だけでなく、内訳（材料・人・機械など）ももらう。</div></div>
+        <div><span class="no">4</span><div class="tx"><b>同じものさしで比べる</b><br>「別途」と書かれた、見積に入っていないものを足してから比べる。</div></div>
+        <div><span class="no">5</span><div class="tx"><b>商談（ネゴ）する</b><br>値段や条件を話し合う。理由を伝えて、おたがいが納得できる金額をさがす。</div></div>
+        <div><span class="no">6</span><div class="tx"><b>決めて、書面で契約</b><br>注文書と注文請書（または契約書）を取り交わす。選ばなかった会社にも、お礼と結果を伝える。</div></div>
+      </div>
+      <h3>見積をつくる日数（見積期間）</h3>
+      <div class="tablebox"><table>
+        <tr><th>工事の予定金額</th><th>あげる日数</th></tr>
+        <tr><td>500万円未満</td><td>1日以上</td></tr>
+        <tr><td>500万円以上 5,000万円未満</td><td>中10日以上</td></tr>
+        <tr><td>5,000万円以上</td><td>中15日以上</td></tr>
+      </table></div>
+      <p class="muted">「中10日」は、お願いした日と締切の日を数えずに10日以上、という意味（建設業法施行令 第6条）。</p>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">お金 3</span>
+      <h2>見積書の中身をのぞいてみよう</h2>
+      <p>くるみ舗装さんの見積 <b>2,500万円</b>（例）。合計の中には、こんなものが入っています。</p>
+      <div class="stack" id="stackQuote"></div>
+      <div class="callout">見積には「<b>もしものための分</b>」が入っていることが多いんだ。図面があいまい、地面の中がわからない、天気が心配…。わからないことが多いほど、ここが大きくなる。</div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">お金 4</span>
+      <h2>なぜ、話し合うと値段が下がるの？</h2>
+      <div class="say"><div class="bun" data-mood="think"></div>
+        <div class="bubble q">最初の見積が本当の値段じゃないの？ 下げられるなら、最初から安くすればいいのに…。</div></div>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble">最初の見積は「わからないこと」や「心配」もふくめた金額なんだ。話し合うと、<b>心配が減ったり、条件が変わったり</b>して、下げられる部分が出てくるんだよ。</div></div>
+      <div class="reasons">
+        <div class="reason"><span class="cut">もしもの分が減る</span><h3>心配が減る</h3><p>図面や条件がはっきりすると、「もしも」の上乗せを減らせる。</p></div>
+        <div class="reason"><span class="cut">もうけが減る</span><h3>この仕事がほしい</h3><p>次の仕事につなげたい、元請さんと長くつきあいたいときは、もうけを少しけずってでも受けたい。</p></div>
+        <div class="reason"><span class="cut">もうけ・会社の経費</span><h3>人と機械を休ませたくない</h3><p>仕事がなくても給料や機械のローンはかかる。空いている時期なら、もうけが少なくても動かした方が会社は助かる。秋田では冬の前によくある話。</p></div>
+        <div class="reason"><span class="cut">材料・機械・運搬</span><h3>条件が変わる</h3><p>材料を元請が用意する、重機を元請が手配する、工期にゆとりを持たせる、近くの現場とまとめて機械を運ぶ、など。</p></div>
+        <div class="reason"><span class="cut">会社の経費</span><h3>支払いの条件</h3><p>現金で早めに払う、出来高ごとにこまめに払う。お金のやりくりが楽になる分、値引きできることがある。</p></div>
+        <div class="reason"><span class="cut">会社の経費</span><h3>まとめて・続けて頼む</h3><p>量が多い、何件も続けて頼む。段取りや営業の手間が減るので、1件あたりを安くできる。</p></div>
+        <div class="reason"><span class="cut">材料・作業員さん</span><h3>やり方の工夫（VE）</h3><p>同じ品質で、安い材料や早くできる方法に変える提案。VEは「価値を上げる工夫」という意味の言葉。</p></div>
+        <div class="reason"><span class="cut">全体</span><h3>数量の見直し</h3><p>見積の数量を図面と照らし合わせたら、多めに入っていた。正しい数量で計算しなおす。</p></div>
+      </div>
+    </div>
+
+    <div class="card" id="sim">
+      <span class="eyebrow">お金 5</span>
+      <h2>値下げシミュレーター</h2>
+      <p>くるみ舗装さんの見積 <b>2,500万円</b> で、話し合いをしてみよう。チェックを入れると、見積がどう変わるかわかるよ。</p>
+      <div class="toggles" id="simToggles"></div>
+      <div class="stack" id="stackSim"></div>
+      <div class="simout">
+        <div class="so"><div class="v" id="simQuote">2,500万</div><div class="l">見積金額</div></div>
+        <div class="so"><div class="v" id="simReal">2,500万</div><div class="l">元請の実質の負担</div></div>
+        <div class="so"><div class="v" id="simPct">0%</div><div class="l">最初より下がった</div></div>
+      </div>
+      <div class="status good" id="simStatus"><div class="mog" data-mood="normal"></div><span></span></div>
+      <p class="muted" id="simCalc"></p>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">お金 6</span>
+      <h2>下げすぎはダメ！ ルールとマナー</h2>
+      <div class="rules">
+        <div class="rule"><h3><span class="ng">原価より安い金額を押しつけない</span><span class="law">建設業法 第19条の3</span></h3><p>元請が、立場の強さを使って、工事に普通にかかるお金（原価）より安い金額で下請けさんに契約させるのは禁止。</p></div>
+        <div class="rule"><h3><span class="ng">受ける側も赤字の契約はダメ</span><span class="law">2025年12月から</span></h3><p>受ける側（下請けさん）も、作業員さんの労務費などを著しく低くした見積りを出したり、赤字（原価割れ）の契約を結んだりしてはいけなくなった。無理に短い工期で契約するのもダメ。</p></div>
+        <div class="rule"><h3>「この金額で」の決めつけに注意</h3><p>注文する側が金額を一方的に決めて頼むことを「指値（さしね）」という。押しつけはトラブルや違反のもと。理由を説明して話し合う。</p></div>
+        <div class="rule"><h3>安すぎる見積も要注意</h3><p>手抜き、工事の途中でやめてしまう、安全がおろそかになる…。安さの理由を確かめよう。</p></div>
+        <div class="rule"><h3>マナー</h3><ul>
+          <li>ほかの会社の見積書や社名を、そのまま見せない（「予算はこのくらいです」と伝える）</li>
+          <li>値段だけでなく、技術・安全・これまでの仕事ぶり・現場からの近さも見る</li>
+          <li>選ばなかった会社にも、お礼と結果を伝える</li>
+        </ul></div>
+      </div>
+      <div class="callout ok">見積の比べ方や値引き率の計算は、「ぴょこのパーセント教室」の<b>現場問題</b>で練習できるよ。<br><a href="https://salacurtet-source.github.io/pyoko-percent/#genba" target="_blank" rel="noopener">ぴょこのパーセント教室をひらく</a></div>
+    </div>
+  </section>
+
+  <!-- ================= 用語 ================= -->
+  <section class="pane" id="pane-yougo" hidden>
+    <div class="card">
+      <h2>総務でよく聞く言葉</h2>
+      <div class="say"><div class="mog" data-mood="normal"></div>
+        <div class="bubble">会議や電話で知らない言葉が出たら、ここで探してね。</div></div>
+      <input type="search" class="search" id="gSearch" placeholder="さがす（例：あいみつ、出来高、台帳）" aria-label="言葉をさがす">
+      <div class="chips" id="gCats" role="group" aria-label="分類"></div>
+    </div>
+    <div class="gloss" id="glossList"></div>
+    <p class="empty" id="glossEmpty" hidden>見つかりませんでした。ちがう言葉か、ひらがなで探してみてね。</p>
+  </section>
+
+  <!-- ================= クイズ ================= -->
+  <section class="pane" id="pane-quiz" hidden>
+    <div class="card" id="quizCard">
+      <div class="qhead"><span class="qno" id="qNo"></span><span class="muted">せいかい <b class="num" id="qScore">0</b></span></div>
+      <div class="say"><div class="mog" id="qMog" data-mood="normal"></div><p class="qtext" id="qText"></p></div>
+      <div class="qchoices" id="qChoices"></div>
+      <div class="qres" id="qRes" hidden></div>
+      <button class="btn" type="button" id="qNext" hidden>つぎへ</button>
+    </div>
+    <div class="card qend" id="quizEnd" hidden>
+      <div class="mog" data-mood="happy"></div>
+      <p class="big num" id="qFinal"></p>
+      <p id="qMsg"></p>
+      <button class="btn" type="button" id="qRestart">もう一度やる</button>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>計算の練習は <a href="https://salacurtet-source.github.io/pyoko-percent/" target="_blank" rel="noopener">ぴょこのパーセント教室</a></span>
+    <span>法律の金額や手続きは2026年10月時点のものです。会社や発注者のルールも確認してね。</span>
+  </footer>
+</div>
+
+<p style="text-align:center;font-size:.75rem;color:var(--sub);margin-top:28px">もぐらの土木しくみ帳 v1.0</p>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+
+<script>
+(function(){
+/* ---------- characters (original) ---------- */
+function bunny(mood){
+  var eyes;
+  if(mood==='happy') eyes='<path d="M36 58q5-6 10 0M64 58q5-6 10 0" fill="none" stroke="var(--bunny-line)" stroke-width="3.2" stroke-linecap="round"/>';
+  else if(mood==='think') eyes='<path d="M36 58h10M64 58h10" stroke="var(--bunny-line)" stroke-width="3.2" stroke-linecap="round"/><path d="M90 34q4 7 0 10q-4-3 0-10z" fill="var(--sky)"/>';
+  else eyes='<circle cx="41" cy="57" r="3.4" fill="var(--bunny-line)"/><circle cx="69" cy="57" r="3.4" fill="var(--bunny-line)"/>';
+  return '<svg viewBox="0 0 110 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="うさぎのぴょこ">'+
+    '<g stroke="var(--bunny-line)" stroke-width="3"><path d="M38 40C30 22 30 4 39 3c8-1 10 18 10 36z" fill="var(--bunny)"/><path d="M62 39C63 21 68 2 76 4c8 2 4 22-6 37z" fill="var(--bunny)"/><ellipse cx="55" cy="62" rx="38" ry="32" fill="var(--bunny)"/></g>'+
+    '<path d="M39 34C34 22 35 11 39 10c3 0 5 12 5 22z" fill="var(--pink)" opacity=".8"/><path d="M66 33C68 21 71 11 74 12c3 1 1 13-4 22z" fill="var(--pink)" opacity=".8"/>'+eyes+
+    '<ellipse cx="33" cy="68" rx="6" ry="4" fill="var(--pink)" opacity=".75"/><ellipse cx="77" cy="68" rx="6" ry="4" fill="var(--pink)" opacity=".75"/>'+
+    '<path d="M52 63h6l-3 3z" fill="var(--bunny-line)"/><path d="M50 68q2.5 3 5 0q2.5 3 5 0" fill="none" stroke="var(--bunny-line)" stroke-width="2.4" stroke-linecap="round"/></svg>';
+}
+function mole(mood){
+  var eyes;
+  if(mood==='happy') eyes='<path d="M38 58q4-5 8 0M62 58q4-5 8 0" fill="none" stroke="var(--bunny-line)" stroke-width="3" stroke-linecap="round"/>';
+  else if(mood==='think') eyes='<path d="M38 58h8M62 58h8" stroke="var(--bunny-line)" stroke-width="3" stroke-linecap="round"/><path d="M92 40q4 7 0 10q-4-3 0-10z" fill="var(--sky)"/>';
+  else if(mood==='wow') eyes='<circle cx="42" cy="57" r="4" fill="var(--bunny-line)"/><circle cx="66" cy="57" r="4" fill="var(--bunny-line)"/>';
+  else eyes='<circle cx="42" cy="58" r="2.8" fill="var(--bunny-line)"/><circle cx="66" cy="58" r="2.8" fill="var(--bunny-line)"/>';
+  return '<svg viewBox="0 0 110 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="もぐら">'+
+    '<ellipse cx="54" cy="64" rx="36" ry="31" fill="var(--mole)" stroke="var(--bunny-line)" stroke-width="3"/>'+
+    '<ellipse cx="54" cy="74" rx="20" ry="15" fill="var(--bunny)" opacity=".55"/>'+
+    '<path d="M20 44a34 26 0 0 1 68 0z" fill="var(--helmet)" stroke="var(--bunny-line)" stroke-width="3" stroke-linejoin="round"/>'+
+    '<path d="M12 45h84" stroke="var(--bunny-line)" stroke-width="5" stroke-linecap="round"/><path d="M12 45h84" stroke="var(--helmet)" stroke-width="2" stroke-linecap="round"/>'+
+    '<path d="M54 19v24" stroke="var(--bunny-line)" stroke-width="2" opacity=".35"/>'+eyes+
+    '<ellipse cx="54" cy="68" rx="7" ry="5" fill="var(--pink)" stroke="var(--bunny-line)" stroke-width="2"/>'+
+    '<ellipse cx="30" cy="70" rx="5" ry="3.4" fill="var(--pink)" opacity=".7"/><ellipse cx="78" cy="70" rx="5" ry="3.4" fill="var(--pink)" opacity=".7"/>'+
+    '<g fill="var(--pink)" stroke="var(--bunny-line)" stroke-width="2"><ellipse cx="22" cy="86" rx="9" ry="6"/><ellipse cx="86" cy="86" rx="9" ry="6"/></g></svg>';
+}
+function paint(el){el.innerHTML=(el.classList.contains('mog')?mole:bunny)(el.dataset.mood||'normal')}
+function setMood(el,m){if(el.dataset.mood!==m||!el.innerHTML){el.dataset.mood=m;paint(el)}}
+document.querySelectorAll('.bun,.mog').forEach(paint);
+var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function man(n){n=Math.round(n);if(n>=10000){var o=Math.floor(n/10000),r=n-o*10000;return o+'億'+(r?r.toLocaleString('ja-JP')+'万':'')}return n.toLocaleString('ja-JP')+'万'}
+
+/* ---------- tabs ---------- */
+var PANES=['nagare','shitauke','okane','yougo','quiz'];
+var tabs=document.querySelectorAll('.tabs button');
+function showPane(id){
+  tabs.forEach(function(b){b.setAttribute('aria-selected',b.dataset.pane===id?'true':'false')});
+  PANES.forEach(function(p){document.getElementById('pane-'+p).hidden=(p!==id)});
+  store.set('mogura-tab',id);
+}
+tabs.forEach(function(b){b.addEventListener('click',function(){showPane(b.dataset.pane);window.scrollTo({top:0})})});
+var h=(location.hash||'').slice(1),saved=store.get('mogura-tab');
+showPane(PANES.indexOf(h)>=0?h:(PANES.indexOf(saved)>=0?saved:'nagare'));
+
+/* ---------- flow ---------- */
+var PH=[['受注まで','入札'],['契約',''],['着工の準備',''],['工事中',''],['完成・検査',''],['完成のあと','']];
+var F=[
+ {p:0,t:'発注の予定を調べる',o:'役所が「今年はこんな工事を出します」と発表する',
+  g:'営業や工事の担当が、自分の会社で受けられそうな工事をチェックする。',
+  s:['入札に参加するための登録（入札参加資格）が切れていないか確認する','経営事項審査（経審）の点数や「格付け（ランク）」で、参加できる工事の大きさが決まる。決算のあとに毎年手続きがある'],
+  w:['発注見通し','入札参加資格','経審','格付け']},
+ {p:0,t:'入札公告（こうこく）を見る',o:'工事の名前・場所・工期・参加の条件が公開される',
+  g:'図面や仕様書（設計図書）を読んで、入札するかどうか決める。',
+  s:['電子入札システムで、公告や図面をダウンロードする','参加申請の書類をつくり、締切を管理する'],
+  w:['入札公告','設計図書','電子入札']},
+ {p:0,t:'積算（せきさん）する',o:'図面と数量から「いくらでできるか」を計算する',
+  g:'積算の担当が、材料・作業員さん・機械のお金を積み上げる。下請けさんや資材屋さんに見積をお願いする（ここで相見積もり）。',
+  s:['見積依頼の書類を送ったり、届いた見積書を整理したりする','見積をつくるための日数（見積期間）をきちんとあげる'],
+  w:['積算','見積','相見積もり']},
+ {p:0,t:'入札・開札（かいさつ）',o:'金額を出して、いちばん条件のいい会社が受ける',
+  g:'入札する金額（ふつう税抜き）を社長や部長が決める。安すぎると失格になる「最低制限価格」や、役所が調べる「低入札価格調査」がある。大きな工事では、技術の点数と金額で決める「総合評価方式」も多い。',
+  s:['電子入札でICカードを使って入札書を出す','開札の結果を確認して、社内に知らせる'],
+  w:['予定価格','最低制限価格','総合評価方式','落札']},
+ {p:1,t:'契約を結ぶ',o:'落札したら、役所と契約書を取り交わす（金額は税込み）',
+  g:'工期や工事の内容を、もう一度確認する。',
+  s:['契約書の作成と押印（電子契約のこともある）','契約保証の手続き（工事を最後までやりとげる約束を、保険などで裏づける）','紙の契約書なら収入印紙を貼る'],
+  w:['請負金額','契約保証','収入印紙']},
+ {p:1,t:'前払金とCORINS（コリンズ）',o:'工事を始めるお金を受け取り、工事の実績を登録する',
+  g:'前払金で、材料の手配や準備を始められる。',
+  s:['前払金を請求する。保証会社に申し込んで「前払金保証証書」をもらい、役所に出す','CORINS（工事実績のデータベース）に登録する。請負金額500万円以上の工事は、契約から土日祝をのぞく10日以内'],
+  w:['前払金','前払金保証','CORINS']},
+ {p:2,t:'現場の責任者を決める',o:'現場代理人と技術者を決めて、役所に届け出る',
+  g:'現場代理人（現場で会社を代表する人）と、主任技術者・監理技術者（技術の責任者）を決める。請負金額4,500万円以上の工事では、技術者はその現場に専任（原則かけもち不可）。',
+  s:['技術者の資格証や、会社に雇われていることがわかる書類をそろえる','届出の書類を役所に出す'],
+  w:['現場代理人','主任技術者','監理技術者','専任']},
+ {p:2,t:'下請けさんを決めて契約する',o:'相見積もりと商談のあと、書面で契約する',
+  g:'工事課長たちが見積を比べて、商談（値段や条件の話し合い）をする。',
+  s:['注文書・注文請書、または下請契約書をつくって保管する（口約束はNG）','下請けさんの建設業許可や、社会保険に入っているかを確認する'],
+  w:['相見積もり','注文書','注文請書','協力会社']},
+ {p:2,t:'施工体制台帳と施工体系図',o:'「だれが・どの工事を・どの会社の下で」やるかの一覧と図',
+  g:'会社のつながりを図にした施工体系図を、現場の見えるところに貼る。',
+  s:['公共工事では、下請けに出したら金額にかかわらず施工体制台帳をつくり、写しを役所に出す','下請けさんから、再下請負通知書や作業員名簿などの書類（安全書類）を集めてまとめる'],
+  w:['施工体制台帳','施工体系図','再下請負通知書','安全書類']},
+ {p:2,t:'着工前の届け出と準備',o:'計画書、道路の許可、保険、近所へのお知らせ',
+  g:'施工計画書と工程表を役所に出す。道路を使うときは警察の道路使用許可や、道路の占用許可をとる。近所の家にお知らせを配る。',
+  s:['建退共（建設業退職金共済）の証紙を買い、掛金収納書を役所に出す','現場の労災保険の手続き','お知らせのチラシづくりや配布の手伝い'],
+  w:['施工計画書','工程表','道路使用許可','建退共']},
+ {p:3,t:'工事を進める',o:'準備工から本体の工事へ。毎朝の朝礼と危険予知から始まる',
+  g:'測量や丁張り（目じるし）→ 掘削・型枠・鉄筋・コンクリート・舗装…と進む。工程・品質・安全・原価（お金）の4つを管理する。',
+  s:['作業日報や出面（でづら＝だれが何日来たか）をまとめる','下請けさんや資材屋さんの請求書を受け付ける'],
+  w:['丁張り','KY活動','出面','原価管理']},
+ {p:3,t:'検査・写真・打合せ',o:'途中の検査や記録で「ちゃんとつくった証拠」を残す',
+  g:'埋まって見えなくなる所は、役所の人に確認してもらう（段階確認）。工事写真、寸法（出来形）や品質の記録をとる。役所との打合せ簿をつくる。',
+  s:['提出する書類の整理と、締切の管理','写真や書類のデータ整理を手伝うことも'],
+  w:['段階確認','出来形','工事写真','打合せ簿']},
+ {p:3,t:'変更契約と毎月の支払い',o:'内容が変わったら契約を変える。下請けさんには出来高に応じて払う',
+  g:'掘ってみたら地盤が悪かった、などで工事の内容が変わったら、役所と話し合う（設計変更）。',
+  s:['変更契約書の手続き','中間前払金や部分払（できた分の代金）の請求','下請けさんの請求書をチェックして支払う。元請は、発注者からお金を受け取ったら1か月以内に下請けさんに払う'],
+  w:['設計変更','変更契約','出来高','部分払']},
+ {p:4,t:'完成検査',o:'役所の人が、できあがりと書類をチェックする',
+  g:'完成届を出し、検査の日に寸法・品質・写真・書類を確認してもらう。',
+  s:['完成届や完成図書を出す準備','検査の日の段取り（会議室・資料など）'],
+  w:['完成届','完成検査','竣工']},
+ {p:4,t:'引き渡しと請求',o:'合格したら引き渡して、残りの代金を請求する',
+  g:'現場のあと片づけ。',
+  s:['請負代金の請求書を出し、入金を確認する','下請けさんへの最後の支払い'],
+  w:['引き渡し','請負金額','精算']},
+ {p:5,t:'工事成績と記録の保存',o:'工事の点数がついて、次の入札にもひびく',
+  g:'あとから不具合が見つかったら対応する（契約不適合責任）。',
+  s:['役所がつける工事成績評定の結果を保管する（点数が高いと次の入札で有利になることがある）','CORINSに完成の登録をする','書類を決められた年数保存する。決算のあとは、建設業許可の決算変更届や経審の準備へ'],
+  w:['工事成績評定','契約不適合責任','決算変更届']}
+];
+var readMap={};try{readMap=JSON.parse(store.get('mogura-read')||'{}')||{}}catch(e){readMap={}}
+(function(){
+  var nav=document.getElementById('phaseNav');
+  PH.forEach(function(ph,i){
+    var idx=[];F.forEach(function(f,j){if(f.p===i)idx.push(j+1)});
+    var b=document.createElement('button');b.type='button';b.id='phn-'+i;
+    b.innerHTML='<span class="pn">'+(i+1)+'</span><span>'+ph[0]+(ph[1]?'（'+ph[1]+'）':'')+'<small>ステップ '+idx[0]+(idx.length>1?'〜'+idx[idx.length-1]:'')+'</small></span>';
+    b.addEventListener('click',function(){document.getElementById('ph-'+i).scrollIntoView({behavior:'smooth',block:'start'})});
+    nav.appendChild(b);
+  });
+  var list=document.getElementById('flowList'),html='',last=-1;
+  F.forEach(function(f,j){
+    if(f.p!==last){last=f.p;html+='<h3 class="phase" id="ph-'+f.p+'"><span class="pn">'+(f.p+1)+'</span>'+PH[f.p][0]+(PH[f.p][1]?'（'+PH[f.p][1]+'）':'')+'</h3>'}
+    html+='<details class="step'+(readMap[j]?' read':'')+'" id="st-'+j+'"><summary><span class="sno">'+(j+1)+'</span><span class="stt"><b>'+f.t+'</b><small>'+f.o+'</small></span></summary>'+
+      '<div class="sbody"><div class="srow genba"><span class="lab">現場では</span><p>'+f.g+'</p></div>'+
+      '<div class="srow soumu"><span class="lab">総務では</span><ul>'+f.s.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+      '<div class="words">'+f.w.map(function(w){return '<button type="button" class="word" data-word="'+w+'">'+w+'</button>'}).join('')+'</div>'+
+      '<label class="readchk"><input type="checkbox" id="rd-'+j+'" data-i="'+j+'"'+(readMap[j]?' checked':'')+'> 読んだ</label></div></details>';
+  });
+  list.innerHTML=html;
+  list.addEventListener('change',function(e){var c=e.target;if(!c.dataset||c.dataset.i==null)return;var i=+c.dataset.i;
+    if(c.checked)readMap[i]=1;else delete readMap[i];store.set('mogura-read',JSON.stringify(readMap));
+    document.getElementById('st-'+i).classList.toggle('read',c.checked);updRead()});
+  list.addEventListener('click',function(e){var w=e.target.closest('.word');if(!w)return;openTerm(w.dataset.word)});
+  updRead();
+})();
+function updRead(){var n=Object.keys(readMap).length;document.getElementById('readCount').textContent=n;document.getElementById('readBar').style.width=(n/16*100)+'%'}
+document.getElementById('openAll').addEventListener('click',function(){document.querySelectorAll('details.step').forEach(function(d){d.open=true})});
+document.getElementById('closeAll').addEventListener('click',function(){document.querySelectorAll('details.step').forEach(function(d){d.open=false})});
+
+/* ---------- tree ---------- */
+var LV=[
+ '<b>発注者（はっちゅうしゃ）</b>は、工事をお願いしてお金を出す人。公共工事なら市・県・国。どの会社に頼むかは入札で決める。',
+ '<b>元請（もとうけ）</b>は、役所から直接工事を受ける会社。<b>あなたの会社はここ</b>。工事全体の工程・品質・安全・お金を管理して、役所への書類も全部まとめる。',
+ '<b>一次下請（いちじしたうけ）</b>は、元請から工事の一部を受ける専門の会社。舗装、型枠、鉄筋、土工、交通誘導など。会社によっては「協力会社」と呼ぶ。',
+ '<b>二次下請（にじしたうけ）</b>は、一次下請からさらに一部を受ける会社。元請とは直接の契約がないけれど、施工体制台帳には名前が載る。'
+];
+var tdText=document.getElementById('tdText'),tdMog=document.getElementById('tdMog');
+document.querySelectorAll('#tree .lv').forEach(function(b){b.addEventListener('click',function(){
+  document.querySelectorAll('#tree .lv').forEach(function(x){x.classList.toggle('on',x===b)});
+  tdText.innerHTML=LV[+b.dataset.lv];setMood(tdMog,b.dataset.lv==='1'?'happy':'normal');
+})});
+
+/* ---------- stacked bars ---------- */
+function renderStack(el,items,opts){
+  opts=opts||{};var base=opts.base||items.reduce(function(s,x){return s+Math.max(0,x.v)},0);
+  var bar='<div class="sbar" aria-hidden="true">'+items.map(function(x){return '<span class="'+(x.ext?'ext':'')+'" style="width:'+(Math.max(0,x.v)/base*100)+'%;background-color:'+x.c+'"></span>'}).join('')+
+    (opts.over?'<i class="over" style="left:'+(opts.over[0]/base*100)+'%;width:'+(opts.over[1]/base*100)+'%"></i><i class="mark" style="left:'+(opts.over[0]/base*100)+'%"></i>':'')+'</div>';
+  var tot=items.reduce(function(s,x){return s+(x.ext?0:x.v)},0);
+  var lg='<div class="legend">'+items.map(function(x){return '<div class="lg"><i style="background:'+x.c+'"></i><span class="n">'+x.n+'</span><span class="v">'+man(x.v)+'円'+(opts.noPct?'':'（'+Math.round(x.v/tot*100)+'%）')+'</span></div>'}).join('')+'</div>';
+  el.innerHTML=bar+lg;
+}
+renderStack(document.getElementById('stackUse'),[
+ {n:'下請けさんへ',v:5130,c:'var(--leaf)'},{n:'自社でやる工事・材料・機械',v:2870,c:'var(--sky)'},
+ {n:'現場を管理するお金',v:1000,c:'var(--helmet)'},{n:'会社の経費ともうけ',v:1000,c:'var(--cone)'}]);
+renderStack(document.getElementById('stackSekisan'),[
+ {n:'直接工事費',v:7000,c:'var(--sky)'},{n:'共通仮設費',v:600,c:'var(--leaf)'},{n:'現場管理費',v:1400,c:'var(--helmet)'},
+ {n:'一般管理費等',v:1000,c:'var(--cone)'},{n:'消費税（10%）',v:1000,c:'var(--mole)'}]);
+var QUOTE=[
+ {k:'mat',n:'材料費（アスファルト・砕石）',v:900,c:'var(--sky)'},{k:'lab',n:'労務費（作業員さん）',v:600,c:'var(--leaf)'},
+ {k:'mac',n:'機械費（舗装の機械）',v:350,c:'var(--mole)'},{k:'exp',n:'運搬・現場の経費',v:200,c:'var(--helmet)'},
+ {k:'adm',n:'会社の経費',v:175,c:'var(--pink)'},{k:'pro',n:'もうけ',v:150,c:'var(--cone)'},{k:'risk',n:'もしものための分',v:125,c:'var(--sub)'}];
+renderStack(document.getElementById('stackQuote'),QUOTE);
+
+/* ---------- simulator ---------- */
+var TG=[
+ {id:'risk',t:'図面と条件がはっきりした',d:'心配が減ったので「もしも」の分を減らせる',cut:{risk:100}},
+ {id:'season',t:'冬の前で、仕事がほしい時期',d:'もうけを少しけずってでも、人と機械を動かしたい',cut:{pro:50}},
+ {id:'kaiso',t:'近くの現場とまとめて重機を運ぶ',d:'機械を運ぶ回数が減る',cut:{exp:40}},
+ {id:'cash',t:'現金で早めに支払う',d:'お金のやりくりが楽になる分を値引きに',cut:{adm:25}},
+ {id:'qty',t:'数量を図面で見直したら、多すぎた',d:'正しい数量で計算しなおす',cut:{mat:40,lab:20}},
+ {id:'ve',t:'同じ品質で早くできる方法を提案（VE）',d:'作業の日数が減る',cut:{lab:35}},
+ {id:'shikyu',t:'アスファルトを元請が用意する（材料支給）',d:'見積からは材料費が消えるけど、元請が材料代を別に払う',cut:{mat:900},ext:855},
+ {id:'force',t:'「とにかく、あと500万下げて！」と押しつける',d:'理由のない値下げの押しつけ',danger:true,force:500}
+];
+var tgBox=document.getElementById('simToggles');
+tgBox.innerHTML=TG.map(function(t){return '<label class="tg'+(t.danger?' danger':'')+'"><input type="checkbox" id="tg-'+t.id+'" data-id="'+t.id+'"><span>'+t.t+'<small>'+t.d+'</small></span></label>'}).join('');
+tgBox.addEventListener('change',runSim);
+function runSim(){
+  var on={};tgBox.querySelectorAll('input').forEach(function(i){on[i.dataset.id]=i.checked});
+  var cur={};QUOTE.forEach(function(q){cur[q.k]=q.v});
+  var ext=0,force=0;
+  TG.forEach(function(t){if(!on[t.id])return;if(t.cut)for(var k in t.cut)cur[k]=Math.max(0,cur[k]-t.cut[k]);if(t.ext)ext+=t.ext;if(t.force)force+=t.force});
+  var cost=cur.mat+cur.lab+cur.mac+cur.exp+cur.adm;
+  var quote=cost+cur.pro+cur.risk-force;
+  var items=QUOTE.map(function(q){return{n:q.n,v:cur[q.k],c:q.c}});
+  if(ext)items.push({n:'元請が別に払う材料代',v:ext,c:'var(--sky)',ext:true});
+  var opts={base:2500,noPct:true};
+  if(force){items.forEach(function(x){if(x.n==='もうけ'||x.n==='もしものための分')x.v=0});opts.over=[quote,cost-quote]}
+  renderStack(document.getElementById('stackSim'),items,opts);
+  var real=quote+ext,pct=Math.round((2500-real)/2500*1000)/10;
+  document.getElementById('simQuote').textContent=man(quote);
+  document.getElementById('simReal').textContent=man(real);
+  document.getElementById('simPct').textContent=pct+'%';
+  document.getElementById('simCalc').innerHTML='下がった率 ＝ (2,500 − '+real.toLocaleString('ja-JP')+') ÷ 2,500 × 100 ＝ '+pct+'%';
+  var st=document.getElementById('simStatus'),m=st.querySelector('.mog'),sp=st.querySelector('span');
+  document.getElementById('simPct').style.color=force?'var(--bad)':'';
+  if(force){st.className='status bad';setMood(m,'wow');sp.textContent='見積が、工事にかかるお金（'+man(cost)+'円）より '+man(cost-quote)+'円 も安くなってしまった。これは原価割れ。立場を使って押しつけると法律違反のおそれがあるし、受ける側も赤字の契約はダメ！'}
+  else if(on.shikyu&&pct<10){st.className='status mid';setMood(m,'think');sp.textContent='見積は'+man(quote)+'円に下がったけど、材料代は元請が別に払うから、本当に安くなったのは'+man(2500-real)+'円だけ。見積が下がった＝安くなった、とはかぎらないよ。'}
+  else if(pct===0){st.className='status mid';setMood(m,'normal');sp.textContent='チェックを入れて、話し合いの中身を選んでみてね。'}
+  else{st.className='status good';setMood(m,'happy');sp.textContent='理由のある値下げで、'+man(2500-real)+'円（'+pct+'%）下がった。下請けさんも納得できる、いい商談だね。'}
+}
+runSim();
+
+/* ---------- glossary ---------- */
+var GL=[
+ ['入札・契約','発注者','はっちゅうしゃ','工事をお願いして、お金を払う人。公共工事なら市・県・国。'],
+ ['入札・契約','入札','にゅうさつ','工事を受けたい会社が金額を出しあって、受ける会社を決めるしくみ。'],
+ ['入札・契約','入札公告','にゅうさつこうこく','「この工事の入札をします」というお知らせ。工事名・場所・工期・参加条件がのっている。'],
+ ['入札・契約','電子入札','でんしにゅうさつ','インターネットで入札すること。ICカードを使う。'],
+ ['入札・契約','開札','かいさつ','入札した金額をいっせいに開けて、結果を出すこと。'],
+ ['入札・契約','落札','らくさつ','入札で、その工事を受けることが決まること。'],
+ ['入札・契約','予定価格','よていかかく','役所が「この工事はここまでなら払う」と決めた上限の金額。'],
+ ['入札・契約','最低制限価格','さいていせいげんかかく','これより安いと失格になる金額。安すぎて工事の質が落ちるのをふせぐ。'],
+ ['入札・契約','低入札価格調査','ていにゅうさつかかくちょうさ','安すぎる入札のとき、本当にその金額でできるかを役所が調べること。'],
+ ['入札・契約','総合評価方式','そうごうひょうかほうしき','金額だけでなく、技術力や実績の点数もあわせて落札者を決める方式。'],
+ ['入札・契約','入札参加資格','にゅうさつさんかしかく','役所の入札に参加するための登録。期限があるので更新が必要。'],
+ ['入札・契約','経審','けいしん','経営事項審査。会社の規模・技術・経営を点数にしたもの。公共工事を元請で受けるのに必要。'],
+ ['入札・契約','格付け','かくづけ','経審の点数などで決まる会社のランク。ランクで参加できる工事の大きさが変わる。'],
+ ['入札・契約','発注見通し','はっちゅうみとおし','役所が「今年はこんな工事を出す予定です」と前もって公表するもの。'],
+ ['入札・契約','設計図書','せっけいとしょ','図面・仕様書・数量など、工事の内容を決める書類のセット。'],
+ ['入札・契約','契約保証','けいやくほしょう','工事を最後までやりとげる約束を、保険や保証で裏づけること。'],
+ ['入札・契約','収入印紙','しゅうにゅういんし','紙の契約書に貼る税金の印紙。電子契約ならいらない。'],
+ ['入札・契約','変更契約','へんこうけいやく','工事の途中で内容や金額が変わったときに、契約を結びなおすこと。'],
+ ['入札・契約','設計変更','せっけいへんこう','現場の状況にあわせて、図面や工事の内容を変えること。'],
+ ['入札・契約','注文書','ちゅうもんしょ','元請が下請けさんに「この工事をお願いします」と出す書類。'],
+ ['入札・契約','注文請書','ちゅうもんうけしょ','下請けさんが「お受けします」と返す書類。注文書とセットで契約になる。'],
+ ['お金','請負金額','うけおいきんがく','工事を請け負う金額。契約金額。'],
+ ['お金','積算','せきさん','図面と数量から、工事にかかるお金を計算すること。'],
+ ['お金','見積','みつもり','「この工事ならいくらでできます」という金額の提案。'],
+ ['お金','相見積もり','あいみつもり','同じ条件で2社以上から見積をとって比べること。略して「あいみつ」。'],
+ ['お金','商談・ネゴ','しょうだん','値段や条件を話し合うこと。ネゴは英語の「交渉」から。'],
+ ['お金','指値','さしね','注文する側が「この金額で」と決めて頼むこと。一方的な押しつけはトラブルのもと。'],
+ ['お金','出精値引き','しゅっせいねびき','端数を切るなど、がんばって値引きすること。見積書の最後によく書かれる。'],
+ ['お金','別途','べっと','見積金額に入っていないもの。比べるときは足す。'],
+ ['お金','一式','いっしき','細かく分けずに「まとめていくら」という書き方。'],
+ ['お金','実行予算','じっこうよさん','工事を実際にやるための社内の予算。'],
+ ['お金','粗利','あらり','請負金額から、実際にかかったお金を引いた残り。会社のもうけ。'],
+ ['お金','原価','げんか','工事に普通にかかるお金。これより安く受けると赤字（原価割れ）。'],
+ ['お金','直接工事費','ちょくせつこうじひ','材料・作業員さん・機械など、形になるものに直接かかるお金。'],
+ ['お金','共通仮設費','きょうつうかせつひ','現場事務所、仮設の道路、安全設備など、工事全体で共通に使うもののお金。'],
+ ['お金','現場管理費','げんばかんりひ','現場の社員の給料や保険など、現場を管理するためのお金。'],
+ ['お金','一般管理費等','いっぱんかんりひとう','本社の経費（総務の人の給料も）と会社のもうけ。'],
+ ['お金','前払金','まえばらいきん','工事を始める前にもらえる代金の一部。保証会社の保証が必要。'],
+ ['お金','前払金保証','まえばらいきんほしょう','前払金をもらうために、保証会社がつける保証。保証証書を役所に出す。'],
+ ['お金','中間前払金','ちゅうかんまえばらいきん','工事の途中で、条件を満たすと追加でもらえる前払金。'],
+ ['お金','出来高','できだか','できあがった分を金額で表したもの。'],
+ ['お金','部分払','ぶぶんばらい','出来高に応じて、工事の途中で代金の一部を払う・もらうこと。'],
+ ['お金','精算','せいさん','最後に金額を確定させて、残りを払う・受け取ること。'],
+ ['お金','スライド条項','すらいどじょうこう','資材や人件費が大きく値上がりしたとき、契約金額の変更を相談できるきまり。'],
+ ['お金','材料支給','ざいりょうしきゅう','元請が材料を用意して、下請けさんに渡すこと。'],
+ ['お金','VE','ぶいいー','同じ品質のまま、安くしたり早くしたりする工夫や提案。'],
+ ['現場','工期','こうき','工事を始めてから終わるまでの期間。'],
+ ['現場','着工','ちゃっこう','工事を始めること。'],
+ ['現場','竣工','しゅんこう','工事が完成すること。'],
+ ['現場','丁張り','ちょうはり','高さや位置の目じるしに、杭と板でつくるもの。'],
+ ['現場','出来形','できがた','できあがったものの形や寸法。決められた寸法どおりかをチェックする。'],
+ ['現場','段階確認','だんかいかくにん','埋まって見えなくなる前に、役所の人に確認してもらうこと。'],
+ ['現場','工事写真','こうじしゃしん','工事の途中や完成の様子を記録する写真。検査で大事な証拠になる。'],
+ ['現場','KY活動','けーわいかつどう','危険予知活動。作業の前に「どんな危険があるか」をみんなで話し合う。'],
+ ['現場','原価管理','げんかかんり','かかったお金が予算の中におさまっているか見張ること。'],
+ ['現場','人工','にんく','1人が1日働く量の単位。8人で60日なら480人工。'],
+ ['現場','出面','でづら','作業員さんが何人・何日来たかの記録。'],
+ ['現場','立米','りゅうべ','㎥（立方メートル）のこと。生コンや土の量に使う。'],
+ ['現場','生コン','なまこん','工場で練って、固まる前に現場へ運ぶコンクリート。'],
+ ['現場','重機','じゅうき','バックホウ（ショベルカー）やローラーなど、大きな工事用の機械。'],
+ ['現場','道路使用許可','どうろしようきょか','工事で道路を使うときに、警察からもらう許可。'],
+ ['現場','完成検査','かんせいけんさ','工事が終わったときに、役所が寸法・品質・書類をチェックする検査。'],
+ ['現場','引き渡し','ひきわたし','完成した工事を発注者に渡すこと。'],
+ ['書類','施工計画書','せこうけいかくしょ','どうやって工事をするかの計画。着工前に役所に出す。'],
+ ['書類','工程表','こうていひょう','いつ、どの作業をするかの予定表。'],
+ ['書類','施工体制台帳','せこうたいせいだいちょう','工事にかかわる会社・技術者・作業内容の一覧。公共工事は下請けに出したら必ずつくる。'],
+ ['書類','施工体系図','せこうたいけいず','会社のつながりを図にしたもの。現場の見えるところに貼る。'],
+ ['書類','再下請負通知書','さいしたうけおいつうちしょ','下請けさんが、さらに下請けに出したときに元請へ出す書類。'],
+ ['書類','安全書類','あんぜんしょるい','作業員名簿や持ち込む機械の届けなど、下請けさんから集める書類のセット。「グリーンファイル」とも呼ぶ。'],
+ ['書類','CORINS','こりんず','公共工事の実績を登録するデータベース。500万円以上の工事は登録が必要。'],
+ ['書類','建退共','けんたいきょう','建設業退職金共済。働いた日数分の証紙で、作業員さんの退職金をためる制度。'],
+ ['書類','打合せ簿','うちあわせぼ','役所とのやりとりを記録する書類。'],
+ ['書類','完成届','かんせいとどけ','「工事が終わりました」と役所に知らせる書類。'],
+ ['書類','完成図書','かんせいとしょ','完成した工事の図面・写真・記録をまとめたもの。'],
+ ['書類','工事成績評定','こうじせいせきひょうてい','役所がつける工事の点数。次の入札に影響することがある。'],
+ ['書類','決算変更届','けっさんへんことどけ','建設業の許可を持つ会社が、決算のあとに毎年出す届け。'],
+ ['会社・人','元請','もとうけ','発注者から直接工事を受ける会社。工事全体の責任を持つ。'],
+ ['会社・人','下請','したうけ','元請などから、工事の一部を受ける会社。'],
+ ['会社・人','一次下請','いちじしたうけ','元請から直接受ける下請けさん。'],
+ ['会社・人','二次下請','にじしたうけ','一次下請から受ける下請けさん。'],
+ ['会社・人','協力会社','きょうりょくがいしゃ','下請けさんを、ていねいに呼ぶ言い方。'],
+ ['会社・人','一括下請負','いっかつしたうけおい','受けた工事を丸ごと下請けに出すこと（丸投げ）。公共工事では全面禁止。'],
+ ['会社・人','現場代理人','げんばだいりにん','現場で会社を代表する人。'],
+ ['会社・人','主任技術者','しゅにんぎじゅつしゃ','工事の技術の責任者。どの工事にも必要。'],
+ ['会社・人','監理技術者','かんりぎじゅつしゃ','元請が下請けに出す合計が5,000万円以上（建築一式は8,000万円以上）の工事で必要な、上位の技術の責任者。'],
+ ['会社・人','専任','せんにん','その現場にずっといること（かけもちしない）。請負金額4,500万円以上（建築一式は9,000万円以上）で必要。'],
+ ['会社・人','特定建設業','とくていけんせつぎょう','下請けに合計5,000万円以上（建築一式は8,000万円以上）を出す元請に必要な許可。'],
+ ['会社・人','建設業許可','けんせつぎょうきょか','建設業をするための許可。5年ごとに更新。'],
+ ['会社・人','契約不適合責任','けいやくふてきごうせきにん','引き渡したあとに、契約どおりでない所が見つかったときに直したりする責任。']
+];
+var gCat='ぜんぶ',GC=['ぜんぶ','入札・契約','お金','現場','書類','会社・人'];
+var gBox=document.getElementById('gCats'),gSearch=document.getElementById('gSearch'),gList=document.getElementById('glossList');
+GC.forEach(function(c,i){var b=document.createElement('button');b.type='button';b.className='chip';b.id='gcat-'+i;b.textContent=c;b.setAttribute('aria-pressed',c===gCat?'true':'false');
+  b.addEventListener('click',function(){gCat=c;gBox.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});drawGloss()});gBox.appendChild(b)});
+function drawGloss(){
+  var q=gSearch.value.trim(),n=0,html='';
+  GL.forEach(function(g,i){
+    if(gCat!=='ぜんぶ'&&g[0]!==gCat)return;
+    if(q&&(g[1]+g[2]+g[3]).indexOf(q)<0)return;
+    n++;html+='<div class="term" id="term-'+i+'"><div class="tt"><b>'+esc(g[1])+'</b><span class="rd">'+esc(g[2])+'</span><span class="tc">'+esc(g[0])+'</span></div><p>'+esc(g[3])+'</p></div>';
+  });
+  gList.innerHTML=html;document.getElementById('glossEmpty').hidden=n>0;
+}
+gSearch.addEventListener('input',drawGloss);drawGloss();
+function openTerm(w){
+  showPane('yougo');gCat='ぜんぶ';gBox.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',x.textContent==='ぜんぶ'?'true':'false')});
+  gSearch.value=w;drawGloss();
+  if(!gList.children.length){gSearch.value=w.slice(0,2);drawGloss()}
+  window.scrollTo({top:0});
+  var f=gList.querySelector('.term');if(f){f.classList.add('flash');setTimeout(function(){f.classList.remove('flash')},1800)}
+}
+
+/* ---------- quiz ---------- */
+var QZ=[
+ ['市から直接、工事を受ける会社はどれ？',['元請','一次下請','二次下請'],0,'役所から直接受ける会社は「元請」。社内で「一次で受けてる」と言うこともあるけれど、書類では元請と書くよ。'],
+ ['市（発注者）と契約書を結んでいるのは？',['元請だけ','元請と一次下請','現場に来る全部の会社'],0,'契約は「となり同士」だけ。市が契約しているのは元請だけだよ。'],
+ ['公共工事で、受けた工事を丸ごと下請けに出すのは？',['禁止','役所がOKならできる','自由にできる'],0,'丸投げ（一括下請負）は、公共工事では発注者がOKと言っても全面禁止。'],
+ ['下請けさんと契約するときは？',['書面（または電子契約）で','電話でOK','口約束でOK'],0,'金額・工事の内容・工期・支払い日などを書いた書面で契約するのが法律のルール。'],
+ ['「相見積もり」とは？',['同じ条件で2社以上から見積をとって比べること','1社に何度も見積を出しなおしてもらうこと','見積を役所に出すこと'],0,'略して「あいみつ」。比べるために条件をそろえるのが大事。'],
+ ['見積に「重機は別途」と書いてあった。比べるときは？',['重機のお金を足してから比べる','そのまま比べる','重機の会社に聞く'],0,'「別途」は見積金額に入っていない分。足してから比べないと、本当の安さがわからない。'],
+ ['話し合いで見積が下がる理由として、正しくないのはどれ？',['作業員さんにお給料を払わなくてよくなるから','「もしも」の分が減るから','空いている時期で仕事がほしいから'],0,'作業員さんのお給料をけずって安くするのはダメ。2025年12月からは、労務費を著しく低くした見積りそのものが禁止になったよ。'],
+ ['元請が、立場の強さを使って原価より安い金額を押しつけるのは？',['法律で禁止','交渉のテクニック','公共工事ならOK'],0,'建設業法で「不当に低い請負代金」は禁止。2025年12月からは、受ける側も赤字の契約を結んではいけなくなった。'],
+ ['元請が下請けに出す合計が5,000万円以上（建築一式以外）のとき、必要なのは？',['特定建設業の許可','宅建の免許','なにもいらない'],0,'2025年2月から、基準が4,500万円→5,000万円に変わったよ。'],
+ ['工事の値段の「一般管理費等」に入っているのは？',['本社の経費と会社のもうけ','生コンの代金','現場の作業員さんのお給料'],0,'総務の人のお給料も、ここから出ているんだ。'],
+ ['元請は、発注者からお金を受け取ったら、いつまでに下請けさんに払う？',['1か月以内','1年以内','決まりはない'],0,'建設業法で「1か月以内」と決まっている。支払いの予定は総務が管理することが多いよ。'],
+ ['役所がつける「工事成績評定」は、何に影響することがある？',['次の入札','社員のお給料','消費税の率'],0,'点数が高いと、次の入札で有利になることがある。だから現場も書類もていねいに。']
+];
+var qi=0,qs=0,order=[];
+var qText=document.getElementById('qText'),qChoices=document.getElementById('qChoices'),qRes=document.getElementById('qRes'),qNext=document.getElementById('qNext'),qMog=document.getElementById('qMog');
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function startQuiz(){qi=0;qs=0;document.getElementById('quizCard').hidden=false;document.getElementById('quizEnd').hidden=true;drawQ()}
+function drawQ(){
+  var q=QZ[qi];document.getElementById('qNo').textContent='第'+(qi+1)+'問 / '+QZ.length;document.getElementById('qScore').textContent=qs;
+  qText.textContent=q[0];setMood(qMog,'normal');
+  order=shuffle(q[1].map(function(_,i){return i}));
+  qChoices.innerHTML=order.map(function(i){return '<button type="button" data-i="'+i+'">'+esc(q[1][i])+'</button>'}).join('');
+  qRes.hidden=true;qNext.hidden=true;
+}
+qChoices.addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||b.disabled)return;
+  var q=QZ[qi],pickI=+b.dataset.i,right=pickI===q[2];
+  qChoices.querySelectorAll('button').forEach(function(x){x.disabled=true;if(+x.dataset.i===q[2])x.classList.add('right');else if(x===b)x.classList.add('wrong')});
+  if(right){qs++;setMood(qMog,'happy');qMog.classList.remove('hop');void qMog.offsetWidth;qMog.classList.add('hop')}else setMood(qMog,'think');
+  document.getElementById('qScore').textContent=qs;
+  qRes.className='qres '+(right?'ok':'ng');qRes.innerHTML='<div class="h">'+(right?'せいかい！':'おしい！')+'</div><p>'+q[3]+'</p>';qRes.hidden=false;
+  qNext.textContent=qi===QZ.length-1?'結果を見る':'つぎへ';qNext.hidden=false;
+});
+qNext.addEventListener('click',function(){
+  if(qi<QZ.length-1){qi++;drawQ();document.getElementById('quizCard').scrollIntoView({block:'start'})}
+  else{document.getElementById('quizCard').hidden=true;document.getElementById('quizEnd').hidden=false;
+    document.getElementById('qFinal').textContent=qs+' / '+QZ.length;
+    document.getElementById('qMsg').textContent=qs===QZ.length?'全問せいかい！ もう立派な土木の総務さんだね。':qs>=9?'すごい！ あと少しで全問せいかい。':qs>=6?'いい調子。まちがえたところを「流れ」や「下請け」で見なおしてみよう。':'だいじょうぶ。「流れ」と「下請け」のタブを読んでから、もう一度やってみよう。'}
+});
+document.getElementById('qRestart').addEventListener('click',startQuiz);
+startQuiz();
+})();
+</script>
+
+</body>
+</html>
